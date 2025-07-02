@@ -134,7 +134,7 @@ export default function ForgotPassword() {
             <motion.div variants={itemVariants} className="mb-8">
               <div className="flex justify-center mb-6">
                 <img 
-                  src="/big bird.jpg" 
+                  src="/big-bird.jpg" 
                   alt="ExpenseAI Logo" 
                   className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
                 />

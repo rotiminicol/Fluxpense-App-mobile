@@ -154,7 +154,7 @@ export default function Splash() {
             }}
           >
             <img 
-              src="/big bird.jpg" 
+              src="/big-bird.jpg" 
               alt="Expense Tracker Logo" 
               className="w-full h-full rounded-full object-cover"
             />

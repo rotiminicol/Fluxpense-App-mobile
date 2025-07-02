@@ -143,7 +143,7 @@ export default function WelcomePage() {
         >
           <div className="w-40 h-40 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center border border-blue-500/20 mb-6 p-1 overflow-hidden">
             <img 
-              src="/big bird.jpg" 
+              src="/big-bird.jpg" 
               alt="Expense Tracker Logo" 
               className="w-full h-full rounded-full object-cover"
             />
