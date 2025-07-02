@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MobileContainer } from "../components/layout/mobile-container";
@@ -10,16 +11,45 @@ import { useExpenses } from "../hooks/use-expenses";
 import { useAuth } from "../hooks/use-auth";
 import { getCurrentMonth, formatCurrency } from "../lib/auth";
 import { getCategoryColor } from "../hooks/use-categories";
+import { ExpenseWithCategory } from "../types/expense";
+
+interface CategoryBreakdown {
+  [key: string]: {
+    name: string;
+    total: number;
+    count: number;
+    color: string;
+  };
+}
 
 export default function Reports() {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [selectedPeriod, setSelectedPeriod] = useState<"month" | "3months" | "year">("month");
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   
-  const { data: expenses = [], isLoading } = useExpenses(user!.id, selectedMonth);
+  const { data: expenses = [], isLoading: isExpensesLoading } = useExpenses(
+    user?.id || 0,
+    selectedMonth
+  );
+
+  if (isAuthLoading) {
+    return (
+      <MobileContainer>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      </MobileContainer>
+    );
+  }
+
+  if (!user) {
+    setLocation('/login');
+    return null;
+  }
 
   // Calculate category breakdown
-  const categoryBreakdown = expenses.reduce((acc, expense) => {
+  const categoryBreakdown = (expenses as ExpenseWithCategory[]).reduce((acc: CategoryBreakdown, expense: ExpenseWithCategory) => {
     const categoryName = expense.category_name || 'Unknown';
     if (!acc[categoryName]) {
       acc[categoryName] = {
@@ -32,13 +62,13 @@ export default function Reports() {
     acc[categoryName].total += Number(expense.amount);
     acc[categoryName].count += 1;
     return acc;
-  }, {} as Record<string, { name: string; total: number; count: number; color: string }>);
+  }, {} as CategoryBreakdown);
 
-  const totalSpent = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  const totalSpent = expenses.reduce((sum: number, expense: ExpenseWithCategory) => sum + Number(expense.amount), 0);
   const lastMonthSpent = 2547.30; // This would be calculated from last month's data
   const changePercentage = totalSpent > 0 ? ((totalSpent - lastMonthSpent) / lastMonthSpent) * 100 : 0;
 
-  if (isLoading) {
+  if (isExpensesLoading) {
     return (
       <MobileContainer>
         <MobileHeader />

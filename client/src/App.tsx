@@ -12,6 +12,9 @@ import Reports from "./pages/reports";
 import Profile from "./pages/profile";
 import Login from "./pages/auth/login";
 import Signup from "./pages/auth/signup";
+import ForgotPassword from "./pages/auth/forgot-password";
+import Splash from "./pages/splash";
+import Welcome from "./pages/welcome";
 import NotFound from "./pages/not-found";
 
 // Loading component
@@ -52,7 +55,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated) {
-    return <Redirect to="/" />;
+    return <Redirect to="/dashboard" />;
   }
 
   return <>{children}</>;
@@ -62,6 +65,14 @@ function Router() {
   return (
     <Switch>
       {/* Public routes */}
+      <Route path="/" component={Splash} />
+      
+      <Route path="/welcome">
+        <PublicRoute>
+          <Welcome />
+        </PublicRoute>
+      </Route>
+      
       <Route path="/login">
         <PublicRoute>
           <Login />
@@ -74,8 +85,14 @@ function Router() {
         </PublicRoute>
       </Route>
 
+      <Route path="/forgot-password">
+        <PublicRoute>
+          <ForgotPassword />
+        </PublicRoute>
+      </Route>
+
       {/* Protected routes */}
-      <Route path="/">
+      <Route path="/dashboard">
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>

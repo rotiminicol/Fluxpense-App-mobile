@@ -11,14 +11,34 @@ import { useExpenses } from "../hooks/use-expenses";
 import { useAuth } from "../hooks/use-auth";
 import { getCurrentMonth } from "../lib/auth";
 import { ExpenseWithCategory } from "../types/expense";
+import { useLocation } from "wouter";
 
 export default function Expenses() {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseWithCategory | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   
-  const { data: expenses = [], isLoading } = useExpenses(user!.id, selectedMonth);
+  const { data: expenses = [], isLoading: isExpensesLoading } = useExpenses(
+    user?.id || 0,
+    selectedMonth
+  );
+
+  if (isAuthLoading) {
+    return (
+      <MobileContainer>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      </MobileContainer>
+    );
+  }
+
+  if (!user) {
+    setLocation('/login');
+    return null;
+  }
 
   const handleEdit = (expense: ExpenseWithCategory) => {
     setEditingExpense(expense);
@@ -79,7 +99,11 @@ export default function Expenses() {
                 <div>
                   <p className="text-sm text-gray-500">Total Spent</p>
                   <p className="text-xl font-bold text-gray-900">
-                    ${expenses.reduce((sum, expense) => sum + Number(expense.amount), 0).toFixed(2)}
+                    {isExpensesLoading ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    ) : (
+                      `$${expenses.reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0).toFixed(2)}`
+                    )}
                   </p>
                 </div>
                 <div>
@@ -91,7 +115,7 @@ export default function Expenses() {
           </Card>
 
           {/* Expense List */}
-          {isLoading ? (
+          {isExpensesLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>

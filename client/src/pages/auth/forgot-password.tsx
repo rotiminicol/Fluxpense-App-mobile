@@ -1,25 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
-import { Eye, EyeOff, Mail, ArrowLeft } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import { ArrowLeft, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { authAPI } from "@/lib/api";
-import { useAuth } from "@/hooks/use-auth";
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-type LoginForm = z.infer<typeof loginSchema>;
+type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -45,41 +41,44 @@ const itemVariants = {
   },
 };
 
-export default function Login() {
+export default function ForgotPassword() {
   const [, setLocation] = useLocation();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const { toast } = useToast();
 
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<ForgotPasswordForm>({
+    resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: ForgotPasswordForm) => {
     setIsLoading(true);
     try {
-      const user = await authAPI.login(data.email, data.password);
-      login(user);
-      setLocation("/dashboard");
+      // TODO: Implement password reset logic
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
+        title: "Check your email",
+        description: "We've sent you a link to reset your password.",
       });
+      setLocation("/login");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Invalid email or password. Please try again.",
+        description: "Failed to send reset link. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -98,7 +97,6 @@ export default function Login() {
             ease: "easeInOut",
           }}
         />
-        
         <motion.div 
           className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-cyan-50 z-0"
           animate={{
@@ -114,14 +112,14 @@ export default function Login() {
         />
 
         <div className="w-full max-w-md z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             <Button
               variant="ghost"
-              onClick={() => setLocation("/welcome")}
+              onClick={() => setLocation("/login")}
               className="mb-6 -ml-2 text-gray-600 hover:bg-transparent"
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
@@ -142,9 +140,9 @@ export default function Login() {
                 />
               </div>
               <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 bg-clip-text text-transparent">
-                Welcome Back
+                Reset Password
               </h1>
-              <p className="text-gray-500 text-center mt-2">Sign in to your ExpenseAI account</p>
+              <p className="text-gray-500 text-center mt-2">Enter your email to receive a reset link</p>
             </motion.div>
 
             <Form {...form}>
@@ -164,54 +162,12 @@ export default function Login() {
                             <Input
                               type="email"
                               placeholder="Enter your email"
-                              className="pl-10"
+                              className="pl-10 h-12 border-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                               {...field}
                             />
                           </div>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between">
-                          <FormLabel className="text-gray-700">Password</FormLabel>
-                          <a
-                            href="/forgot-password"
-                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                          >
-                            Forgot Password?
-                          </a>
-                        </div>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Enter your password"
-                              className="pr-10"
-                              {...field}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-5 w-5" />
-                              ) : (
-                                <Eye className="h-5 w-5" />
-                              )}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-400 text-xs" />
                       </FormItem>
                     )}
                   />
@@ -223,35 +179,17 @@ export default function Login() {
                     className="w-full py-6 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </motion.div>
-
-                <motion.div variants={itemVariants} className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">
-                      Or continue with
-                    </span>
-                  </div>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                  <Button 
-                    variant="outline" 
-                    type="button" 
-                    className="w-full py-6 text-base border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-                    onClick={() => {
-                      toast({
-                        title: "Coming soon!",
-                        description: "Google authentication will be available soon.",
-                      });
-                    }}
-                  >
-                    <FcGoogle className="mr-3 h-5 w-5" />
-                    Continue with Google
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                        Sending...
+                      </div>
+                    ) : (
+                      <>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Send Reset Link
+                      </>
+                    )}
                   </Button>
                 </motion.div>
               </form>
@@ -262,12 +200,13 @@ export default function Login() {
               className="mt-8 text-center text-sm text-gray-600"
             >
               <p>
-                Don't have an account?{" "}
+                Remember your password?{" "}
                 <button
-                  onClick={() => setLocation("/signup")}
+                  type="button"
+                  onClick={() => setLocation("/login")}
                   className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  Sign up
+                  Sign in
                 </button>
               </p>
             </motion.div>
