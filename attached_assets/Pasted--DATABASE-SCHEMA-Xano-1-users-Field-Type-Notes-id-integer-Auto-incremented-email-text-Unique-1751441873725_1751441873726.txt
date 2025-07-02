@@ -1,0 +1,186 @@
+.
+
+🧱 DATABASE SCHEMA (Xano)
+1. users
+Field	Type	Notes
+id	integer	Auto-incremented
+email	text	Unique
+password	text	Hashed
+name	text	Optional
+created_at	timestamp	Auto
+
+2. expenses
+Field	Type	Notes
+id	integer	Auto-incremented
+user_id	integer	Foreign key → users.id
+vendor	text	e.g., “Shoprite”
+amount	decimal	e.g., 18.99
+date	date	Date of transaction
+category_id	integer	Foreign key → categories.id
+notes	text	Optional
+receipt_url	text	URL to uploaded receipt image
+source	text	'manual'
+created_at	timestamp	Auto
+
+3. categories
+Field	Type	Notes
+id	integer	Auto-incremented
+name	text	e.g., “Food”, “Bills”
+icon	text	Optional emoji/icon
+default	boolean	True for system seed
+
+4. monthly_budgets
+Field	Type	Notes
+id	integer	Auto-incremented
+user_id	integer	FK → users
+category_id	integer	FK → categories
+month	text	Format: "2025-07"
+budget	decimal	e.g., 500.00
+
+5. ocr_logs (optional for debugging)
+Field	Type	Notes
+id	integer	Auto
+user_id	integer	FK → users
+raw_json	JSON	Original OCR result payload
+status	text	success / fail / pending
+created_at	timestamp	Auto
+
+🌐 API ENDPOINTS (Xano)
+📦 Auth (Built-in)
+POST /auth/signup
+
+POST /auth/login
+
+GET /auth/me
+
+📤 Receipt Upload & OCR
+POST /receipt/upload
+Upload image to OCR API
+
+Parse result (vendor, date, total, category)
+
+Save to expenses
+
+Save file to receipt_url
+
+Request body:
+
+json
+Copy
+Edit
+{
+  "image": <uploaded file>
+}
+📧 Email Receipt Hook (via Mailparser)
+POST /email/parser
+Triggered by webhook (e.g., from Mailparser)
+
+Extracts data → stores to expenses
+
+Logs into ocr_logs (optional)
+
+Sample Payload:
+
+json
+Copy
+Edit
+{
+  "user_email": "rotimi@example.com",
+  "vendor": "Jumia",
+  "amount": 12000,
+  "date": "2025-07-01",
+  "category": "Shopping",
+  "receipt_url": "https://cloudinary.com/receipt.png"
+}
+💰 Expense Management
+POST /expenses
+Add manual or auto expense
+
+GET /expenses
+Query expenses by date range, category, etc.
+
+GET /expenses/:id
+Single expense
+
+PATCH /expenses/:id
+Update fields (edit)
+
+DELETE /expenses/:id
+Remove an expense
+
+📊 Monthly Reports & Dashboards
+GET /dashboard/summary
+Total spent
+
+Top 3 categories
+
+Remaining budgets
+
+GET /reports/month/:month
+Input: 2025-07
+
+Returns grouped expenses by category
+
+GET /reports/category/:category_id
+View historical spend in a single category
+
+🧾 Budget APIs
+POST /budgets
+Set budget per month per category
+
+GET /budgets/:month
+Returns budget vs actual per category
+
+🗂 Categories
+GET /categories
+List all categories
+
+POST /categories (Admin/optional)
+Add new category
+
+✅ API Automation Logic (in Xano)
+Receipt Upload
+
+Upload file
+
+Call external OCR API (via external request)
+
+Parse fields
+
+Auto-categorize based on vendor keywords
+
+Save to expenses
+
+Email Parser
+
+Accept webhook
+
+Validate user by email
+
+Extract data
+
+Auto-map or match category
+
+Insert into expenses
+
+Dashboard
+
+Run 3 aggregations:
+
+SUM by month
+
+COUNT by category
+
+Budget delta (budget - actual)
+
+📌 Notes for Setup
+Use Xano external API request to integrate OCR tools like:
+
+Mindee OCR API
+
+Google Cloud Vision
+
+Use file upload endpoint in Xano with a Cloudinary or native file storage binding
+
+Schedule clean-up for failed ocr_logs
+

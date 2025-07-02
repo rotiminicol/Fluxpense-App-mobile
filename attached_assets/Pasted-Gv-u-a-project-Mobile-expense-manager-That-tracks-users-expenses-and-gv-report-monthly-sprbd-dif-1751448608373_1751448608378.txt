@@ -1,0 +1,621 @@
+Gv u a project Mobile expense manager That tracks users expenses and gv report , monthly sprbd , different categories Main feature is I want to be able to scan a receipt or email it to the app and it auto extracts all the details from the image and updates record Do your research , there are alot of similar apps Don’t send me basic , be very thorough and detailed Backend remains xano 
+
+🚀 Project: Mobile Expense Manager (MVP)
+Stack:
+
+Frontend: FlutterFlow or React Native
+
+Backend: Xano
+
+OCR & NLP: Mindee, Nanonets, or Google Cloud Vision (receipt OCR API)
+
+Email Parsing: Mailparser or custom IMAP-based parser
+
+Storage: Xano File Upload (Cloudinary or Supabase optional)
+
+🔥 Core MVP Features
+1. Smart Expense Capture
+Scan Receipt (Camera/Upload)
+
+OCR parses: Vendor, Date, Items, Tax, Total
+
+Auto-categorizes (Food, Transport, Shopping, Bills, etc.)
+
+Saves photo in cloud and links to record
+
+Email Receipt Parsing
+
+Users get a unique email like user@yourapp.com
+
+Forward any e-receipt → Auto-parse content → Store to DB
+
+2. Expense Management
+Add, Edit, Delete Expenses manually
+
+Assign Category & Payment Method
+
+Attach Tags or Notes
+
+Multi-currency support (if user travels)
+
+3. Budget & Category Reports
+Monthly Budget Setting per Category
+
+Visual Breakdown: Pie Charts, Bar Graphs
+
+Filter by Date, Category, or Merchant
+
+4. Dashboard Summary
+Total Spent this Month
+
+Top Categories & Vendors
+
+Remaining Budget Alerts
+
+Upcoming Recurring Expenses (if any)
+
+📲 App Flow (Frontend UI/UX)
+A. Splash & Onboarding
+Explain OCR + Auto Parsing feature
+
+Sign up/login with email or Google
+
+B. Dashboard
+Charts: Monthly spend, top categories
+
+Quick actions: + Add Expense, Scan Receipt, Forward Email
+
+C. Add Expense Page
+Manual entry OR scan/upload/email
+
+Form fields:
+
+Vendor
+
+Date
+
+Category (Dropdown)
+
+Amount
+
+Notes
+
+Upload receipt
+
+D. Receipt Scanner UI
+Upload from Camera / Gallery
+
+Preview result from OCR → user confirms or edits
+
+Auto-submit to DB
+
+E. Reports Page
+Monthly Summary
+
+Export to PDF/CSV
+
+Trends over time
+
+🧠 AI/OCR Receipt Extraction Flow
+User scans or uploads receipt
+
+Image is sent to OCR engine (e.g. Mindee or Cloud Vision API)
+
+Parsed result:
+
+Store name
+
+Date
+
+Amount
+
+Category (based on merchant or keywords)
+
+Data is auto-saved in Xano’s database with file upload URL
+
+🧪 Test with common receipts (Uber, restaurants, e-commerce, supermarkets)
+
+📥 Email Parsing (Forward-to-App)
+Option 1 (No-code): Use Mailparser → Zapier → Xano
+
+Setup template to extract:
+
+Merchant
+
+Total
+
+Date
+
+Items
+
+Option 2 (Custom): Xano + IMAP fetcher
+
+Parse incoming emails to user-tagged mailbox
+
+Extract and push to DB
+
+🛠 Xano Backend Setup (Tables & Flows)
+Tables:
+users
+
+expenses
+
+id, user_id, vendor, amount, date, category, notes, receipt_url, source (camera/email/manual)
+
+categories
+
+monthly_budgets
+
+ocr_logs (for debugging and monitoring)
+
+API Flows:
+POST /scan-receipt → Upload to OCR → Return parsed data
+
+POST /email-parser → From Mailparser webhook → Save to expenses
+
+GET /dashboard-summary
+
+GET /monthly-spend/:month
+
+GET /expenses?filters=...
+
+🔐 Authentication
+Xano Auth: Email + Password
+
+Social (Google) optional for later stage
+
+🧪 Testing Scenarios
+Crumpled receipts
+
+Foreign language receipts
+
+Multiple items with VAT
+
+Duplicate emails or expenses (handle gracefully)
+
+✨ Future Add-ons (Post-MVP)
+Smart recurring expense detection
+
+Subscription tracker
+
+Real-time SMS parsing (e.g. Bank SMS)
+
+Google Calendar integration (travel/meal logs)
+
+Multi-account sync
+
+AI spend optimization tips
+
+🧪 Reference Apps to Benchmark
+Expensify
+
+Smart Receipts
+
+Zoho Expense
+
+Fyle
+
+WellyBox (best email parser UI)
+
+✅ Summary MVP Goals
+Feature	Must Have	Nice to Have
+Manual Expense Add	✅	
+Receipt OCR & Auto Parse	✅	
+Email Parser	✅	
+Monthly Report & Export	✅	
+Budget Tracker	✅	
+AI-based Auto Categorization	✅	
+Multi-Currency Support		✅
+
+
+Here's a detailed Xano DB schema and API endpoint structure for your Mobile Expense Manager MVP, tailored for receipt/email scanning and monthly reports.
+
+🧱 DATABASE SCHEMA (Xano)
+1. users
+Field	Type	Notes
+id	integer	Auto-incremented
+email	text	Unique
+password	text	Hashed
+name	text	Optional
+created_at	timestamp	Auto
+
+2. expenses
+Field	Type	Notes
+id	integer	Auto-incremented
+user_id	integer	Foreign key → users.id
+vendor	text	e.g., “Shoprite”
+amount	decimal	e.g., 18.99
+date	date	Date of transaction
+category_id	integer	Foreign key → categories.id
+notes	text	Optional
+receipt_url	text	URL to uploaded receipt image
+source	text	'manual'
+created_at	timestamp	Auto
+
+3. categories
+Field	Type	Notes
+id	integer	Auto-incremented
+name	text	e.g., “Food”, “Bills”
+icon	text	Optional emoji/icon
+default	boolean	True for system seed
+
+4. monthly_budgets
+Field	Type	Notes
+id	integer	Auto-incremented
+user_id	integer	FK → users
+category_id	integer	FK → categories
+month	text	Format: "2025-07"
+budget	decimal	e.g., 500.00
+
+5. ocr_logs (optional for debugging)
+Field	Type	Notes
+id	integer	Auto
+user_id	integer	FK → users
+raw_json	JSON	Original OCR result payload
+status	text	success / fail / pending
+created_at	timestamp	Auto
+
+🌐 API ENDPOINTS (Xano)
+📦 Auth (Built-in)
+POST /auth/signup
+
+POST /auth/login
+
+GET /auth/me
+
+📤 Receipt Upload & OCR
+POST /receipt/upload
+Upload image to OCR API
+
+Parse result (vendor, date, total, category)
+
+Save to expenses
+
+Save file to receipt_url
+
+Request body:
+
+json
+Copy
+Edit
+{
+  "image": <uploaded file>
+}
+📧 Email Receipt Hook (via Mailparser)
+POST /email/parser
+Triggered by webhook (e.g., from Mailparser)
+
+Extracts data → stores to expenses
+
+Logs into ocr_logs (optional)
+
+Sample Payload:
+
+json
+Copy
+Edit
+{
+  "user_email": "rotimi@example.com",
+  "vendor": "Jumia",
+  "amount": 12000,
+  "date": "2025-07-01",
+  "category": "Shopping",
+  "receipt_url": "https://cloudinary.com/receipt.png"
+}
+💰 Expense Management
+POST /expenses
+Add manual or auto expense
+
+GET /expenses
+Query expenses by date range, category, etc.
+
+GET /expenses/:id
+Single expense
+
+PATCH /expenses/:id
+Update fields (edit)
+
+DELETE /expenses/:id
+Remove an expense
+
+📊 Monthly Reports & Dashboards
+GET /dashboard/summary
+Total spent
+
+Top 3 categories
+
+Remaining budgets
+
+GET /reports/month/:month
+Input: 2025-07
+
+Returns grouped expenses by category
+
+GET /reports/category/:category_id
+View historical spend in a single category
+
+🧾 Budget APIs
+POST /budgets
+Set budget per month per category
+
+GET /budgets/:month
+Returns budget vs actual per category
+
+🗂 Categories
+GET /categories
+List all categories
+
+POST /categories (Admin/optional)
+Add new category
+
+✅ API Automation Logic (in Xano)
+Receipt Upload
+
+Upload file
+
+Call external OCR API (via external request)
+
+Parse fields
+
+Auto-categorize based on vendor keywords
+
+Save to expenses
+
+Email Parser
+
+Accept webhook
+
+Validate user by email
+
+Extract data
+
+Auto-map or match category
+
+Insert into expenses
+
+Dashboard
+
+Run 3 aggregations:
+
+SUM by month
+
+COUNT by category
+
+Budget delta (budget - actual)
+
+📌 Notes for Setup
+Use Xano external API request to integrate OCR tools like:
+
+Mindee OCR API
+
+Google Cloud Vision
+
+Use file upload endpoint in Xano with a Cloudinary or native file storage binding
+
+Schedule clean-up for failed ocr_logs
+
+
+my xano backend endpoint 
+Authentication - https://x8ki-letl-twmt.n7.xano.io/api:SPW7CTD2
+
+POST
+auth/login
+#2731517
+Login and retrieve an authentication token
+2 inputs
+5 functions
+1 result
+ Public
+
+GET
+auth/me
+#2731519
+Get the user record belonging to the authentication token
+0 inputs
+1 function
+1 result
+ Private
+
+POST
+auth/signup
+#2731518
+Signup and retrieve an authentication token
+3 inputs
+4 functions
+1 result
+ Public
+
+
+ ExpenseManagerAPI  - https://x8ki-letl-twmt.n7.xano.io/api:vfCppBSX
+
+
+category (5)
+
+GET
+category
+#2731522
+Query all category records
+0 inputs
+1 function
+1 result
+ Public
+
+POST
+category
+#2731523
+Add category record
+1 input
+1 function
+1 result
+ Public
+
+DELETE
+category/{category_id}
+#2731520
+Delete category record.
+1 input
+1 function
+0 results
+ Public
+
+GET
+category/{category_id}
+#2731521
+Get category record
+1 input
+2 functions
+1 result
+ Public
+
+PATCH
+category/{category_id}
+#2731524
+Edit category record
+2 inputs
+2 functions
+1 result
+ Public
+
+expense (5)
+
+GET
+expense
+#2731537
+Query all expense records
+0 inputs
+1 function
+1 result
+ Public
+
+POST
+expense
+#2731538
+Add expense record
+1 input
+1 function
+1 result
+ Public
+
+DELETE
+expense/{expense_id}
+#2731531
+Delete expense record.
+1 input
+1 function
+0 results
+ Public
+
+GET
+expense/{expense_id}
+#2731536
+Get expense record
+1 input
+2 functions
+1 result
+ Public
+
+PATCH
+expense/{expense_id}
+#2731539
+Edit expense record
+2 inputs
+2 functions
+1 result
+ Public
+
+monthly_budget (5)
+
+GET
+monthly_budget
+#2731527
+Query all monthly_budget records
+0 inputs
+1 function
+1 result
+ Public
+
+POST
+monthly_budget
+#2731528
+Add monthly_budget record
+1 input
+1 function
+1 result
+ Public
+
+DELETE
+monthly_budget/{monthly_budget_id}
+#2731525
+Delete monthly_budget record.
+1 input
+1 function
+0 results
+ Public
+
+GET
+monthly_budget/{monthly_budget_id}
+#2731526
+Get monthly_budget record
+1 input
+2 functions
+1 result
+ Public
+
+PATCH
+monthly_budget/{monthly_budget_id}
+#2731529
+Edit monthly_budget record
+2 inputs
+2 functions
+1 result
+ Public
+
+ocr_log (5)
+
+GET
+ocr_log
+#2731533
+Query all ocr_log records
+0 inputs
+1 function
+1 result
+ Public
+
+POST
+ocr_log
+#2731534
+Add ocr_log record
+1 input
+1 function
+1 result
+ Public
+
+DELETE
+ocr_log/{ocr_log_id}
+#2731530
+Delete ocr_log record.
+1 input
+1 function
+0 results
+ Public
+
+GET
+ocr_log/{ocr_log_id}
+#2731532
+Get ocr_log record
+1 input
+2 functions
+1 result
+ Public
+
+PATCH
+ocr_log/{ocr_log_id}
+#2731535
+Edit ocr_log record
+2 inputs
+2 functions
+1 result
+
+so the first two image attachment is the project logo and the remaining three use it in the project 
+
+so lets build
