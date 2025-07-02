@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./hooks/use-auth";
+import Onboarding from "./pages/onboarding";
 
 // Pages
 import Dashboard from "./pages/dashboard";
@@ -16,6 +17,12 @@ import ForgotPassword from "./pages/auth/forgot-password";
 import Splash from "./pages/splash";
 import Welcome from "./pages/welcome";
 import NotFound from "./pages/not-found";
+import Settings from "./pages/settings";
+import ProfilePersonalInfo from "./pages/profile-personal-info";
+import ProfileBudgetSettings from "./pages/profile-budget-settings";
+import ProfileOCRSettings from "./pages/profile-ocr-settings";
+import ProfileNotifications from "./pages/profile-notifications";
+import ProfileHelp from "./pages/profile-help";
 
 // Loading component
 function LoadingScreen() {
@@ -113,6 +120,48 @@ function Router() {
       <Route path="/profile">
         <ProtectedRoute>
           <Profile />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/settings">
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile/personal-info">
+        <ProtectedRoute>
+          <ProfilePersonalInfo />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile/budget-settings">
+        <ProtectedRoute>
+          <ProfileBudgetSettings />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile/ocr-settings">
+        <ProtectedRoute>
+          <ProfileOCRSettings />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile/notifications">
+        <ProtectedRoute>
+          <ProfileNotifications />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile/help">
+        <ProtectedRoute>
+          <ProfileHelp />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/onboarding">
+        <ProtectedRoute>
+          <Onboarding />
         </ProtectedRoute>
       </Route>
 

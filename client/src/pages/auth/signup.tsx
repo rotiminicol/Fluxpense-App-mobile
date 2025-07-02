@@ -72,7 +72,7 @@ export default function Signup() {
       const { confirmPassword, ...userData } = data;
       const user = await authAPI.signup(userData);
       login(user);
-      navigate("/dashboard");
+      navigate("/onboarding");
       toast({
         title: "Account Created!",
         description: "Welcome to ExpenseAI. Start tracking your expenses now.",

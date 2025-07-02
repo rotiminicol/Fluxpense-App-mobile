@@ -17,6 +17,8 @@ import { useCreateExpense } from "../hooks/use-expenses";
 import { getCurrentMonth } from "../lib/auth";
 import { OCRResult } from "../types/expense";
 import { useLocation } from "wouter";
+import ThreeDBackground from "../components/3d-background";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
@@ -96,67 +98,24 @@ export default function Dashboard() {
 
   return (
     <MobileContainer>
+      <ThreeDBackground />
       <MobileHeader />
-      
       <main className="pb-20">
         {summary && (
-          <>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <BudgetOverview summary={summary} />
-
-            {/* Quick Actions */}
-            <div className="mx-4 mt-6">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  onClick={() => setShowCamera(true)}
-                  variant="outline"
-                  className="h-auto p-4 flex flex-col items-center space-y-2"
-                >
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                    <Camera className="text-white" size={20} />
-                  </div>
-                  <span className="text-sm font-medium">Scan Receipt</span>
-                </Button>
-                
-                <Button
-                  onClick={() => setShowAddForm(true)}
-                  variant="outline"
-                  className="h-auto p-4 flex flex-col items-center space-y-2"
-                >
-                  <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
-                    <Plus className="text-white" size={20} />
-                  </div>
-                  <span className="text-sm font-medium">Add Expense</span>
-                </Button>
-              </div>
-            </div>
-
             <CategoryBreakdownComponent
               categories={summary.categoryBreakdown}
               onViewAll={() => navigate("/reports")}
             />
-
             <RecentTransactions
               transactions={summary.recentTransactions}
               onViewAll={() => navigate("/expenses")}
             />
-          </>
+          </motion.div>
         )}
       </main>
-
-      {/* Floating Action Button */}
-      <div className="fixed bottom-24 right-4 z-40">
-        <Button
-          onClick={() => setShowCamera(true)}
-          size="lg"
-          className="w-14 h-14 rounded-full shadow-lg hover:scale-105 transition-transform"
-        >
-          <Camera size={24} />
-        </Button>
-      </div>
-
-      <BottomNav />
-
+      <BottomNav onCameraClick={() => setShowCamera(true)} />
       <OCRResultModal
         result={ocrResult}
         isOpen={showOcrModal}

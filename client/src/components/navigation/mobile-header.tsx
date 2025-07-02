@@ -96,7 +96,7 @@ export function MobileHeader() {
   };
 
   return (
-    <header className="bg-white/90 backdrop-blur-md px-4 py-3 flex items-center justify-between sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+    <header className="bg-white/80 backdrop-blur-2xl px-4 py-4 flex items-center justify-between sticky top-0 z-50 border-b-2 border-blue-100 shadow-2xl rounded-b-2xl">
       <motion.div 
         className="flex items-center space-x-3"
         initial={{ opacity: 0, x: -20 }}

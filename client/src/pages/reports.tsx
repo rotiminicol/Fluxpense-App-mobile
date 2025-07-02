@@ -12,6 +12,7 @@ import { useAuth } from "../hooks/use-auth";
 import { getCurrentMonth, formatCurrency } from "../lib/auth";
 import { getCategoryColor } from "../hooks/use-categories";
 import { ExpenseWithCategory } from "../types/expense";
+import { motion } from "framer-motion";
 
 interface CategoryBreakdown {
   [key: string]: {
@@ -85,7 +86,7 @@ export default function Reports() {
       <MobileHeader />
       
       <main className="pb-20">
-        <div className="px-4 pt-4">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="px-4 pt-4">
           <h1 className="text-xl font-semibold mb-6">Reports & Analytics</h1>
 
           {/* Time Period Selector */}
@@ -114,63 +115,65 @@ export default function Reports() {
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 gap-4 mb-6">
+            <Card className="bg-white/80 backdrop-blur-2xl border-none shadow-xl">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-500 mb-1">Total Spent</p>
                 <p className="text-xl font-bold text-gray-900">{formatCurrency(totalSpent)}</p>
                 <p className={`text-xs mt-1 ${changePercentage >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {changePercentage >= 0 ? '↑' : '↓'} {Math.abs(changePercentage).toFixed(1)}% from last month
+                  {changePercentage >= 0 ? '\u2191' : '\u2193'} {Math.abs(changePercentage).toFixed(1)}% from last month
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-2xl border-none shadow-xl">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-500 mb-1">Transactions</p>
                 <p className="text-xl font-bold text-gray-900">{expenses.length}</p>
-                <p className="text-xs text-blue-600 mt-1">↑ 8% from last month</p>
+                <p className="text-xs text-blue-600 mt-1">\u2191 8% from last month</p>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Spending Trends Chart */}
-          <div className="mb-6">
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="mb-6">
             <SpendingChart expenses={expenses} />
-          </div>
+          </motion.div>
 
           {/* Category Breakdown */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
-              <div className="space-y-4">
-                {Object.values(categoryBreakdown).map((category) => {
-                  const percentage = totalSpent > 0 ? (category.total / totalSpent) * 100 : 0;
-                  return (
-                    <div key={category.name} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: getCategoryColor(category.color) }}
-                        />
-                        <span className="text-sm font-medium">{category.name}</span>
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="mb-6 bg-white/80 backdrop-blur-2xl border-none shadow-xl">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
+                <div className="space-y-4">
+                  {Object.values(categoryBreakdown).map((category) => {
+                    const percentage = totalSpent > 0 ? (category.total / totalSpent) * 100 : 0;
+                    return (
+                      <div key={category.name} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: getCategoryColor(category.color) }}
+                          />
+                          <span className="text-sm font-medium">{category.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{formatCurrency(category.total)}</p>
+                          <p className="text-xs text-gray-500">{percentage.toFixed(1)}%</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{formatCurrency(category.total)}</p>
-                        <p className="text-xs text-gray-500">{percentage.toFixed(1)}%</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
           {/* Export Options */}
-          <div className="mb-6">
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="mb-6">
             <h3 className="text-lg font-semibold mb-4">Export Data</h3>
             <ExportOptions expenses={expenses} />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
 
       <BottomNav />

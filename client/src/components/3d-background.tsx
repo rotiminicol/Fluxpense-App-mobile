@@ -107,3 +107,6 @@ const ThreeDBackground = () => {
 
   return <div ref={mountRef} className="fixed inset-0 -z-10 opacity-20" />;
 };
+
+export { ThreeDBackground };
+export default ThreeDBackground;

@@ -12,6 +12,7 @@ import { useAuth } from "../hooks/use-auth";
 import { getCurrentMonth } from "../lib/auth";
 import { ExpenseWithCategory } from "../types/expense";
 import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 
 export default function Expenses() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -64,7 +65,7 @@ export default function Expenses() {
       <MobileHeader />
       
       <main className="pb-20">
-        <div className="px-4 pt-4">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="px-4 pt-4">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-semibold">Expenses</h1>
             <Button
@@ -93,36 +94,40 @@ export default function Expenses() {
           </div>
 
           {/* Summary Card */}
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Total Spent</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {isExpensesLoading ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    ) : (
-                      `$${expenses.reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0).toFixed(2)}`
-                    )}
-                  </p>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
+            <Card className="mb-6 bg-white/80 backdrop-blur-2xl border-none shadow-xl">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Total Spent</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {isExpensesLoading ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      ) : (
+                        `$${expenses.reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0).toFixed(2)}`
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Transactions</p>
+                    <p className="text-xl font-bold text-gray-900">{expenses.length}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Transactions</p>
-                  <p className="text-xl font-bold text-gray-900">{expenses.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
           {/* Expense List */}
-          {isExpensesLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <ExpenseList expenses={expenses} onEdit={handleEdit} />
-          )}
-        </div>
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+            {isExpensesLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <ExpenseList expenses={expenses} onEdit={handleEdit} />
+            )}
+          </motion.div>
+        </motion.div>
       </main>
 
       <BottomNav />

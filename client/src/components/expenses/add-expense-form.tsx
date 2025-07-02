@@ -11,6 +11,7 @@ import { insertExpenseSchema, type InsertExpense } from "@shared/schema";
 import { useCategories, getCategoryColor } from "../../hooks/use-categories";
 import { useCreateExpense } from "../../hooks/use-expenses";
 import { OCRResult } from "../../types/expense";
+import { motion } from "framer-motion";
 
 interface AddExpenseFormProps {
   userId: number;
@@ -52,7 +53,7 @@ export function AddExpenseForm({ userId, onClose, ocrData }: AddExpenseFormProps
   };
 
   return (
-    <div className="animate-slide-up">
+    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="">
       <div className="px-4 pt-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Add Expense</h2>
@@ -67,7 +68,7 @@ export function AddExpenseForm({ userId, onClose, ocrData }: AddExpenseFormProps
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
             {/* Amount Input */}
             <FormField
               control={form.control}
@@ -199,6 +200,6 @@ export function AddExpenseForm({ userId, onClose, ocrData }: AddExpenseFormProps
           </form>
         </Form>
       </div>
-    </div>
+    </motion.div>
   );
 }
